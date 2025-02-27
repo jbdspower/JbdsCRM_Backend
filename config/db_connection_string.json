@@ -1,0 +1,6 @@
+
+{
+    
+"connectionStringForTest": "mongodb://localhost:27017/"
+
+}

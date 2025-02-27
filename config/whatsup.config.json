@@ -1,0 +1,47 @@
+{
+    "key":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2NlY2I3MjkzNWU1N2FiYTRmMDZjMiIsIm5hbWUiOiJKQkRTIFBPV0VSIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY1YThlZDQ0MTQ1ZmRhMzhkNjZmZDhmNiIsImFjdGl2ZVBsYW4iOiJOT05FIiwiaWF0IjoxNzE5NDYzMDk1fQ.hKFA4LTaJoA6htBmB5ybnAnhaoNRLOux9FTRkdRF8KI",
+    "api":"https://backend.aisensy.com/campaign/t1/api/v2",
+    "struc":{
+      "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2NlY2I3MjkzNWU1N2FiYTRmMDZjMiIsIm5hbWUiOiJKQkRTIFBPV0VSIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY1YThlZDQ0MTQ1ZmRhMzhkNjZmZDhmNiIsImFjdGl2ZVBsYW4iOiJOT05FIiwiaWF0IjoxNzE5NDYzMDk1fQ.hKFA4LTaJoA6htBmB5ybnAnhaoNRLOux9FTRkdRF8KI",
+      "campaignName": "Ticket_Comments",
+      "destination": "",
+      "userName": "JBDS POWER",
+      "templateParams": [
+      ],
+      "source": "new-landing-page form",
+      "media": {},
+      "buttons": [],
+      "carouselCards": [],
+      "location": {}
+    }
+       ,
+       "Customer_Template": {
+        "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2NlY2I3MjkzNWU1N2FiYTRmMDZjMiIsIm5hbWUiOiJKQkRTIFBPV0VSIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY1YThlZDQ0MTQ1ZmRhMzhkNjZmZDhmNiIsImFjdGl2ZVBsYW4iOiJOT05FIiwiaWF0IjoxNzE5NDYzMDk1fQ.hKFA4LTaJoA6htBmB5ybnAnhaoNRLOux9FTRkdRF8KI",
+        "campaignName": "Customer_Template",
+        "destination": "9",
+        "userName": "JBDS POWER",
+        "templateParams": [
+         
+        ],
+        "source": "new-landing-page form",
+        "media": {},
+        "buttons": [],
+        "carouselCards": [],
+        "location": {}
+      },
+      "Emp_Template":{
+        "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2NlY2I3MjkzNWU1N2FiYTRmMDZjMiIsIm5hbWUiOiJKQkRTIFBPV0VSIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY1YThlZDQ0MTQ1ZmRhMzhkNjZmZDhmNiIsImFjdGl2ZVBsYW4iOiJOT05FIiwiaWF0IjoxNzE5NDYzMDk1fQ.hKFA4LTaJoA6htBmB5ybnAnhaoNRLOux9FTRkdRF8KI",
+        "campaignName": "Emp_Template",
+        "destination": "",
+        "userName": "JBDS POWER",
+        "templateParams": [
+         
+        ],
+        "source": "new-landing-page form",
+        "media": {},
+        "buttons": [],
+        "carouselCards": [],
+        "location": {}
+      }
+    
+}
