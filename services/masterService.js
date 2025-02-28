@@ -71,6 +71,35 @@ MasterService.getAllManpower = function getAllManpower(dbName, callback) {
         })
 };
 
+//=========================rohit update newpoint===============================
+MasterService.updateManpower = async function updateManpower(dbName, manpowerId, updateData) {
+    try {
+        const manpower = await manpowerModal.getModel(dbName);
+        
+        const updatedManpower = await manpower.findByIdAndUpdate(
+            manpowerId, 
+            updateData, 
+            { new: true, runValidators: true } // Return updated record and validate
+        );
+
+        if (!updatedManpower) {
+            throw errorFunction('Manpower not found', 404, 'Not Found');
+        }
+
+        return updatedManpower;
+
+    } catch (err) {
+        if (err.code === 11000) {
+            let error = errorFunction('Duplicate manpower entry', 409, 'Duplicate Error');
+            throw error;
+        }
+        throw err;
+    }
+};
+
+
+//=============================rohit update newpoint==========================
+
 MasterService.createSafetyItems = async function createSafetyItems(dbName, data) {
     try {
         const safetyitems = await safetyItemsModel.getModel(dbName);
@@ -179,3 +208,51 @@ MasterService.getAllCustomerList = function getAllCustomerList(dbName, callback)
             callback(err, null);
         })
 };
+
+//========================rohit new point updatecustomer=========================
+MasterService.updatedCustomer = async function updateCustomer(dbName, manpowerId, updateData) {
+    try {
+        const customer = await customerModel.getModel(dbName);
+        
+        const updatedCustomer = await customer.findByIdAndUpdate(
+            manpowerId, 
+            updateData, 
+            { new: true, runValidators: true } // Return updated record and validate
+        );
+
+        if (!updatedCustomer) {
+            throw errorFunction('Customer not found', 404, 'Not Found');
+        }
+
+        return updatedCustomer;
+
+    } catch (err) {
+        if (err.code === 11000) {
+            let error = errorFunction('Duplicate customer entry', 409, 'Duplicate Error');
+            throw error;
+        }
+        throw err;
+    }
+};
+
+
+
+
+
+MasterService.deleteCustomer = async function deleteCustomer(dbName, customerId) {
+    try {
+        const customer = await customerModel.getModel(dbName);
+
+        const deletedCustomer = await customer.findByIdAndDelete(customerId);
+
+        if (!deletedCustomer) {
+            throw errorFunction('Customer not found', 404, 'Not Found');
+        }
+
+        return deletedCustomer;
+
+    } catch (err) {
+        throw err;
+    }
+};
+//======================rohit new point updatecustomer==========================

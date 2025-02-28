@@ -11,7 +11,8 @@ const CustomerSchema = new mongoose.Schema({
     address: { type: String, require: true },
     designation: { type: String },
     department: { type: String },
-    plant: { type: String }
+    plant: { type: String },
+    status: { type: String , default: "Active" },
 });
 
 

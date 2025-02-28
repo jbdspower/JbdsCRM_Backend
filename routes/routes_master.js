@@ -47,6 +47,36 @@ module.exports.setRoutes = function (app) {
         });
     });
 
+
+    //=============================rohitnewpoint==============================
+    app.patch('/manpower/:id', authCompany, async (req, res) => {
+        try {
+            const manpowerId = req.params.id; // Get manpower ID from URL
+            const updateData = req.body; // Get the updated fields from request body
+    
+            const updatedManpower = await masterService.updateManpower(req.DbName, manpowerId, updateData);
+            
+            res.status(200).send({
+                success: true,
+                message: 'Manpower updated successfully',
+                data: updatedManpower
+            });
+    
+        } catch (err) {
+            res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error updating manpower',
+                error: err
+            });
+        }
+    });
+    
+
+
+
+
+    //===========================rohitnewpoint===============================
+
     app.post('/safetyItems', authCompany, async (req, res) => {
         try {
             const result = await masterService.createSafetyItems(req.DbName, req.body);
@@ -68,7 +98,7 @@ module.exports.setRoutes = function (app) {
         });
     });
 
-    app.post('/customer', authCompany, async (req, res) => {
+    app.post('/customer', async (req, res) => {
         try {
             const result = await masterService.createCustomer(req.DbName, req.body);
             let info = { message: "Customer created Successfully" };
@@ -88,6 +118,55 @@ module.exports.setRoutes = function (app) {
             }
         });
     });
+
+    //=======================rohit new point customer update===============================
+    app.patch('/customer/:id', authCompany, async (req, res) => {
+        try {
+            const customerId = req.params.id; // Get manpower ID from URL
+            const updateData = req.body; // Get the updated fields from request body
+    
+            const updatedCustomer = await masterService.updatedCustomer(req.DbName, customerId, updateData);
+            
+            res.status(200).send({
+                success: true,
+                message: 'Customer updated successfully',
+                data: updatedCustomer
+            });
+    
+        } catch (err) {
+            res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error updating customer',
+                error: err
+            });
+        }
+    });
+
+
+
+    app.delete('/customer/:id', authCompany, async (req, res) => {
+        try {
+            const customerId = req.params.id; // Get customer ID from URL
+    
+            await masterService.deleteCustomer(req.DbName, customerId);
+    
+            res.status(200).send({
+                success: true,
+                message: 'Customer deleted successfully'
+            });
+    
+        } catch (err) {
+            res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error deleting customer',
+                error: err
+            });
+        }
+    });
+ //===========================rohitnewpoint===============================
+
+   
+
 
 
     app.get('/priority', authCompany, (req, res) => {
@@ -119,6 +198,4 @@ module.exports.setRoutes = function (app) {
             }
         });
     });
-
-
 }
