@@ -1,6 +1,3 @@
-
 {
-    
-"connectionStringForTest": "mongodb://localhost:27017/"
-
+    "connectionStringForTest":"mongodb+srv://powerjbds:powerjbds@jbds.hk6xeqm.mongodb.net/"
 }
