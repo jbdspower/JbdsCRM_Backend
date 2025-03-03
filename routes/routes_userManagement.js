@@ -63,7 +63,7 @@ module.exports.setRoutes = function (app) {
     //         res.status(500).send(err);
     //     }
     // });
-    app.post('/user', async (req, res) => {
+    app.post('/user',authCompany, async (req, res) => {
         try {
             const result = await userService.createUser(req.body, req.DbName, req.Company);
             console.log(result,"rrrrrrr")
@@ -120,7 +120,7 @@ module.exports.setRoutes = function (app) {
     });
 
     ////////// USER ROLE /////////
-    app.post('/userRole', async (req, res) => {
+    app.post('/userRole',authCompany, async (req, res) => {
         try {
             const result = await userService.createUserRole(req.DbName, req.body);
             let info = { message: "User Role created Successfully"};

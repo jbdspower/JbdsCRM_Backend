@@ -98,6 +98,55 @@ module.exports.setRoutes = function (app) {
         });
     });
 
+
+    // ===============================newpoint update safetyItems
+    app.patch('/safetyItems/:id', authCompany, async (req, res) => {
+        try {
+            const safetyItemsId = req.params.id; // Get manpower ID from URL
+            const updateData = req.body; // Get the updated fields from request body
+    
+            const updatedSafetyItems = await masterService.updateSafetyItems(req.DbName, safetyItemsId, updateData);
+            
+            res.status(200).send({
+                success: true,
+                message: 'SafetyItems updated successfully',
+                data: updatedSafetyItems
+            });
+    
+        } catch (err) {
+            res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error updating SafetyItems',
+                error: err
+            });
+        }
+    });
+
+
+
+
+
+    app.delete('/safetyItems/:id', authCompany, async (req, res) => {
+        try {
+            const safetyItemsId = req.params.id; // Get customer ID from URL
+    
+            await masterService.deleteSafetyItems(req.DbName, safetyItemsId);
+    
+           return res.status(200).send({
+                success: true,
+                message: 'SafetyItems deleted successfully'
+            });
+    
+        } catch (err) {
+          return  res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error deleting safetyItems',
+                error: err
+            });
+        }
+    });
+      //====================================newpoint update safetyItems
+
     app.post('/customer', async (req, res) => {
         try {
             const result = await masterService.createCustomer(req.DbName, req.body);
@@ -147,15 +196,13 @@ module.exports.setRoutes = function (app) {
     app.delete('/customer/:id', authCompany, async (req, res) => {
         try {
             const customerId = req.params.id; // Get customer ID from URL
-    
-            await masterService.deleteCustomer(req.DbName, customerId);
+             await masterService.deleteCustomer(req.DbName, customerId);
     
             res.status(200).send({
                 success: true,
                 message: 'Customer deleted successfully'
             });
-    
-        } catch (err) {
+             } catch (err) {
             res.status(err.statusCode || 500).send({
                 success: false,
                 message: err.message || 'Error deleting customer',

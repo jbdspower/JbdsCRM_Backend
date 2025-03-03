@@ -1,9 +1,9 @@
 module.exports = {
     AppName: 'LeafNetServer',
-    DatabaseName: "LeafNetAdminDb",
-    // DatabaseName:"CRMDatabase",
+    // DatabaseName: "LeafNetAdminDb",
+    DatabaseName:"CRMDatabase",
     // url:"mongodb://localhost:27017/",
-    //  url: "mongodb+srv://sandy:VS8rzQ6Nopt9Jjvm@cluster0.nwyas.mongodb.net/",
+    // url: "mongodb+srv://powerjbds:powerjbds@jbds.hk6xeqm.mongodb.net/CRMDatabase",
     ServerType: "Shared",
     Version: "2.2",
     Options: {

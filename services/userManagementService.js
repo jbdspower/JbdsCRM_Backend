@@ -68,9 +68,7 @@ UserService.deleteUser = function deleteUser(id, dbName, callback) {
 UserService.createUserRole = async function createUserRole(dbName, data) {
     try {
         let usersRole = await userRole.getModel(dbName);
-        console.log(userRole,"userrrrrrrrrrrrrrrrrrr");
-        
-        const model = new usersRole(data)
+         const model = new usersRole(data)
         await model.save()
         return 'UserRole created successfully.';
 

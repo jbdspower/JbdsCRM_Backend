@@ -132,6 +132,48 @@ MasterService.getAllSafetyItems = function getAllSafetyItems(dbName, callback) {
 };
 
 
+//==============================rohit new point safetyitems==========================
+MasterService.updateSafetyItems = async function updateSafetyItems(dbName, safetyitemsId, updateData) {
+    try {
+        const safetyItems = await safetyItemsModel.getModel(dbName);
+        
+        const updatedSafetyItems= await safetyItems.findByIdAndUpdate(
+            safetyitemsId, 
+            updateData, 
+            { new: true, runValidators: true } // Return updated record and validate
+        );
+
+        if (!updatedSafetyItems) {
+            throw errorFunction('safetyitems not found', 404, 'Not Found');
+        }
+
+        return updatedSafetyItems;
+
+    } catch (err) {
+        if (err.code === 11000) {
+            let error = errorFunction('Duplicate safetyitems entry', 409, 'safetyitems Error');
+            throw error;
+        }
+        throw err;
+    }
+};
+
+MasterService.deleteSafetyItems = async function deleteSafetyItems(dbName, safetyitemsId) {
+    try {
+        const safetyItems = await safetyItemsModel.getModel(dbName);
+        const deletedSafetyItems = await safetyItems.findByIdAndDelete(safetyitemsId);
+        if (!deletedSafetyItems) {
+            throw errorFunction('safetyitems not found', 404, 'Not Found');
+        }
+           return deletedSafetyItems;
+
+    } catch (err) {
+        throw err;
+    }
+};
+//==============================rohit new point safetyitems==========================
+
+
 MasterService.getAllPriority = function getAllPriority(dbName, callback) {
     priority.getModel(dbName).then((model) => {
         model.getAllPriority((err, data) => {

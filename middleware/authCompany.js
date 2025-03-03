@@ -31,7 +31,7 @@ const authCompany = async (req, res, next) => {
 
 
         // }
-        // req.DbName="LeafNetAdminDb"
+        // req.DbName="CRMDatabase"
         // req.Company="CRM"
         next()
     } catch (e) {
