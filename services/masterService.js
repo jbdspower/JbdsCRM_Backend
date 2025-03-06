@@ -40,6 +40,38 @@ MasterService.getAllTool = function getAllTool(dbName, callback) {
         })
 };
 
+
+//========================rohit new point tool==============================
+MasterService.updateTool = async function updateTool(dbName, toolId, updateData) {
+    try {
+        const tool = await toolModal.getModel(dbName);
+        
+        const updatedTool = await tool.findByIdAndUpdate(
+            toolId, 
+            updateData, 
+            { new: true, runValidators: true } // Return updated record and validate
+        );
+
+        if (!updatedTool) {
+            throw errorFunction('updatedTool not found', 404, 'Not Found');
+        }
+
+        return updatedTool;
+
+    } catch (err) {
+        if (err.code === 11000) {
+            let error = errorFunction('Duplicate tool entry', 409, 'Duplicate Error');
+            throw error;
+        }
+        throw err;
+    }
+};
+
+
+//========================rohit new point tool==============================
+
+
+
 MasterService.createManpower = async function createManpower(dbName, data) {
     try {
         const manpower = await manpowerModal.getModel(dbName);

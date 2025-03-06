@@ -13,6 +13,7 @@ module.exports.setRoutes = function (app) {
     app.post('/serviceRequestType', authCompany, async (req, res) => {
         try {
             const result = await serviceRequestService.createServiceRequestType(req.DbName, req.body);
+            console.log(result,"result");
             let info = {
                 "message": "Service Request Type created Successfully"
             };
@@ -241,7 +242,7 @@ module.exports.setRoutes = function (app) {
         }
     });
 
-    app.put('/serviceRequestStateLogs', authCompany, auth, async (req, res) => {
+    app.put('/serviceRequestStateLogs', authCompany, async (req, res) => {
         try {
             const data = await serviceRequestService.getServiceRequestStateLogs(req.DbName, req.body);
             res.status(200).send(data);
@@ -249,6 +250,22 @@ module.exports.setRoutes = function (app) {
             res.status(500).send(err);
         }
     });
+
+
+    // app.post('/serviceRequestStateLogs', authCompany, auth, async (req, res) => {
+    //     try {
+    //         if (!req.body || Object.keys(req.body).length === 0) {
+    //             return res.status(400).json({ error: "Request body is missing" });
+    //         }
+    
+    //         const data = await serviceRequestService.getServiceRequestStateLogs(req.DbName, req.body);
+    //         res.status(201).json(data);
+    //     } catch (err) {
+    //         console.error("Error saving service request state log:", err);
+    //         res.status(500).json({ error: "Internal Server Error", details: err.message });
+    //     }
+    // });
+    
 
 
     ////////// States WorkFlow //////////
@@ -269,6 +286,8 @@ module.exports.setRoutes = function (app) {
 
     app.put('/serviceRequestState', authCompany, testupload, auth, async (req, res) => {
         try {
+            console.log(req.body);
+            console.log(req.user);
             const formData = JSON.parse(req.body.Data)
             formData.Data.Files = req.body.Files
             const data = await serviceRequestService.changeServiceRequestState(req.user, req.DbName, formData);
@@ -277,6 +296,50 @@ module.exports.setRoutes = function (app) {
             res.status(500).send({ message: err.message });
         }
     });
+
+
+
+    // app.put('/serviceRequestState', authCompany, testupload, auth, async (req, res) => {
+    //     try {
+    //         console.log("🔥 Received request:", req.body); // Log full request body
+    //         console.log("🔥 Authenticated user:", req.user); // Log user data
+    //         console.log("🔥 Database Name:", req.DbName); // Log database name
+    
+    //         if (!req.body.Data) {
+    //             return res.status(400).json({ error: "Missing required field: Data" });
+    //         }
+    
+    //         let formData;
+    //         try {
+    //             formData = JSON.parse(req.body.Data);
+    //         } catch (parseError) {
+    //             console.error("🚨 JSON Parsing Error:", parseError);
+    //             return res.status(400).json({ error: "Invalid JSON format in Data", details: parseError.message });
+    //         }
+    
+    //         if (!formData || !formData.Data) {
+    //             return res.status(400).json({ error: "Invalid request: Data object is missing" });
+    //         }
+    
+    //         console.log("✅ Parsed formData:", formData);
+    
+    //         // Ensure `Files` is attached correctly
+    //         if (req.body.Files) {
+    //             formData.Data.Files = req.body.Files;
+    //         }
+    
+    //         console.log("✅ Final formData:", formData);
+    
+    //         // Call the service
+    //         const data = await serviceRequestService.changeServiceRequestState(req.user, req.DbName, formData);
+    
+    //         res.status(200).json(data);
+    //     } catch (err) {
+    //         console.error("🔥 Internal Server Error in /serviceRequestState:", err);
+    //         res.status(500).json({ error: "Internal Server Error", details: err.message });
+    //     }
+    // });
+    
 
     app.put('/ticketCustomData', authCompany, testupload, auth, async (req, res) => {
         try {

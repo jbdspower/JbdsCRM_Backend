@@ -26,6 +26,32 @@ module.exports.setRoutes = function (app) {
         });
     });
 
+    //==========================rohit new toolDetails===================================
+
+    app.patch('/tool/:id', authCompany, async (req, res) => {
+        try {
+            const toolId = req.params.id; // Get manpower ID from URL
+            const updateData = req.body; // Get the updated fields from request body
+    
+            const updatedTool = await masterService.updateTool(req.DbName, toolId, updateData);
+            
+            res.status(200).send({
+                success: true,
+                message: 'Tool updated successfully',
+                data: updatedTool
+            });
+    
+        } catch (err) {
+            res.status(err.statusCode || 500).send({
+                success: false,
+                message: err.message || 'Error updating manpower',
+                error: err
+            });
+        }
+    });
+
+    //==========================rohit new toolDetails===================================
+
     app.post('/manpower', authCompany, async (req, res) => {
         try {
             const result = await masterService.createManpower(req.DbName, req.body);

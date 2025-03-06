@@ -31,7 +31,7 @@ const authCompany = async (req, res, next) => {
 
 
         // }
-        // req.DbName="CRMDatabase"
+        req.DbName="CRMDatabase"
         // req.Company="CRM"
         next()
     } catch (e) {

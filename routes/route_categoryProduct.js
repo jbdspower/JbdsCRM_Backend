@@ -25,7 +25,7 @@ module.exports.setRoutes = function (app) {
         });
     });
 
-    app.put('/product', authCompany, (req, res) => {
+    app.patch('/product', authCompany, (req, res) => {
         categroyProductService.getAllProductByCategory(req.DbName, req.body, (err, data) => {
             if (err) {
                 return res.status(500).send(err);
@@ -54,6 +54,4 @@ module.exports.setRoutes = function (app) {
             }
         });
     });
-
-
 }

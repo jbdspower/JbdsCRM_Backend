@@ -6,8 +6,8 @@ const workFlow = require('../modals/ticket/workFlow');
 const serviceRequest = require('../modals/ticket/ticket')
 const customerService = require('../modals/master/customer')
 const errorFunction = require('../utills/error');
-const watsConfig = require('../config/whatsup.config.json')
-const { default: axios } = require('axios');
+// const watsConfig = require('../config/whatsup.config.json')
+// const { default: axios } = require('axios');
 const _ = require('lodash');
 let serviceRequestService = module.exports = { checkUserIsValidOrNot }
 
@@ -82,31 +82,30 @@ serviceRequestService.deleteServiceRequestTypeById = function deleteServiceReque
 
 /////////// Ticket Comment ///////////////////
 
-function sendNotificationToUsers(dbName, notifyArr = [], currentUser) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const userModel = await user.getModel(dbName);
-            const users = await userModel.find({ name: { $in: notifyArr.map(x => x.User) } })
-            const doArr = []
-            users.forEach((x) => {
-                const chat = _.cloneDeep(watsConfig.struc)
-                chat.templateParams.push(`${data.ClientName}`)
-                chat.templateParams.push(`${currentUser.name}`)
-                chat.templateParams.push(`${data.TicketId}`)
-                chat.templateParams.push(`${data.CompanyName}`)
-                chat.templateParams.push(`${data.Message}`)
-                chat.destination = '91' + x.mobileNumber;
-                doArr.push(axios.post(watsConfig.api, chat))
-            })
-            await Promise.all(doArr)
-            resolve('done')
-        }
-        catch (ex) {
-            reject(ex);
-        }
-
-    })
-}
+// function sendNotificationToUsers(dbName, notifyArr = [], currentUser) {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             const userModel = await user.getModel(dbName);
+//             const users = await userModel.find({ name: { $in: notifyArr.map(x => x.User) } })
+//             const doArr = []
+//             users.forEach((x) => {
+//                 const chat = _.cloneDeep(watsConfig.struc)
+//                 chat.templateParams.push(`${data.ClientName}`)
+//                 chat.templateParams.push(`${currentUser.name}`)
+//                 chat.templateParams.push(`${data.TicketId}`)
+//                 chat.templateParams.push(`${data.CompanyName}`)
+//                 chat.templateParams.push(`${data.Message}`)
+//                 chat.destination = '91' + x.mobileNumber;
+//                 doArr.push(axios.post(watsConfig.api, chat))
+//             })
+//             await Promise.all(doArr)
+//             resolve('done')
+//         }
+//         catch (ex) {
+//             reject(ex);
+//         }
+// })
+// }
 
 serviceRequestService.createComment = async function CreateComment(dbName, data, user1) {
     try {
@@ -134,11 +133,11 @@ serviceRequestService.createComment = async function CreateComment(dbName, data,
         const users = await userModel.find({ name: { $in: notifyArr.map(x => x.User) } })
         const doArr = []
         users.forEach((x) => {
-            const chat = _.cloneDeep(watsConfig.struc)
-            chat.templateParams.push(`${x.name}, ${user1.name} left a comment on your Service Request ID ${data.TicketId} is : ${data.Message}`)
-            chat.templateParams.push(`JBDS TEAM`)
-            chat.destination = '91' + x.mobileNumber;
-            doArr.push(axios.post(watsConfig.api, chat))
+            // const chat = _.cloneDeep(watsConfig.struc)
+            // chat.templateParams.push(`${x.name}, ${user1.name} left a comment on your Service Request ID ${data.TicketId} is : ${data.Message}`)
+            // chat.templateParams.push(`JBDS TEAM`)
+            // chat.destination = '91' + x.mobileNumber;
+            // doArr.push(axios.post(watsConfig.api, chat))
         })
         await Promise.all(doArr)
         const result = await model.createComment(data);
@@ -736,39 +735,39 @@ async function createServiceRequest(user, dbName, data, userId) {
             const model = await userModel.getModel(dbName)
             const otp = generateFourDigitRandomNumber()
             const TeamLead = await model.findOne({ name: data.Data.TeamLead })
-            const chat = _.cloneDeep(watsConfig.Customer_Template)
-            chat.templateParams.push(`${firstState.FieldData.ClientName}`)
-            chat.templateParams.push(`${data.SR_ID}`)
-            chat.templateParams.push(`${TeamLead.name}`)
-            chat.templateParams.push(`${TeamLead.name}`)
-            chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
-            chat.destination = '91' + firstState.FieldData.ClientMobNumber
-            await axios.post(watsConfig.api, chat)
+            // const chat = _.cloneDeep(watsConfig.Customer_Template)
+            // chat.templateParams.push(`${firstState.FieldData.ClientName}`)
+            // chat.templateParams.push(`${data.SR_ID}`)
+            // chat.templateParams.push(`${TeamLead.name}`)
+            // chat.templateParams.push(`${TeamLead.name}`)
+            // chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
+            // chat.destination = '91' + firstState.FieldData.ClientMobNumber
+            // await axios.post(watsConfig.api, chat)
 
-            const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-            chat2.templateParams.push(`${TeamLead.name}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-            chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-            chat2.destination = '91' + TeamLead.mobileNumber
-            await axios.post(watsConfig.api, chat2)
-            data.CustomerOTP = otp;
+            // const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+            // chat2.templateParams.push(`${TeamLead.name}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+            // chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+            // chat2.destination = '91' + TeamLead.mobileNumber
+            // await axios.post(watsConfig.api, chat2)
+            // data.CustomerOTP = otp;
         }
         if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'manager') {
             const firstState = data.SR_Data_Logs
             const model = await userModel.getModel(dbName)
             const emp = await model.findOne({ name: { $in: data.Data.AssignPerson.map(x => x.value) } })
-            const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-            chat2.templateParams.push(`${emp.name}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-            chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-            chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-            chat2.destination = '91' + emp.mobileNumber
-            await axios.post(watsConfig.api, chat2)
+            // const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+            // chat2.templateParams.push(`${emp.name}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+            // chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+            // chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+            // chat2.destination = '91' + emp.mobileNumber
+            // await axios.post(watsConfig.api, chat2)
             //  serviceRequestDoc.CustomerOTP = otp;
         }
         data.Status = "Active"
@@ -778,6 +777,7 @@ async function createServiceRequest(user, dbName, data, userId) {
         return data.SR_ID;
 
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }
