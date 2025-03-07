@@ -34,9 +34,7 @@
       "campaignName": "Emp_Template",
       "destination": "",
       "userName": "JBDS POWER",
-      "templateParams": [
-       
-      ],
+      "templateParams": [ ],
       "source": "new-landing-page form",
       "media": {},
       "buttons": [],

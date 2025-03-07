@@ -49,7 +49,62 @@ CategoryProductService.getAllProductByCategory = function getAllProductByCategor
         callback(err, null)
     });
 };
+//========================updatenew point======================================
+const mongoose = require('mongoose'); // Import mongoose for ObjectId conversion
 
+CategoryProductService.updateProductDetails = function updateProductDetails(dbName, productId, params, callback) {
+    product.getModel(dbName)
+        .then(async (model) => {
+            try {
+                console.log("Received Params:", params);
+
+                // Ensure productId is a valid ObjectId
+                if (!mongoose.Types.ObjectId.isValid(productId)) {
+                    console.log("Error: Invalid Product ID:", productId);
+                    return callback(null, { message: "Invalid Product ID" });
+                }
+
+                // Remove 'Category' from params if present (so it doesn't get updated)
+                if (params.Category) {
+                    console.log("Skipping Category update, updating only product details.");
+                    delete params.Category;
+                }
+
+                // Update only provided product details
+                model.findOneAndUpdate(
+                    { _id: new mongoose.Types.ObjectId(productId) }, // Convert productId to ObjectId
+                    { $set: params }, // Only update the provided fields
+                    { new: true } // Return the updated document
+                )
+                .lean()
+                .exec((err, updatedProduct) => {
+                    if (err) {
+                        console.error("Database Error in updateProductDetails:", err);
+                        return callback(err, null);
+                    } else if (!updatedProduct) {
+                        console.log("No product found for ID:", productId);
+                        return callback(null, { message: "Product not found" });
+                    } else {
+                        console.log("Updated Product Details:", updatedProduct);
+                        return callback(null, updatedProduct);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error in updateProductDetails:", error);
+                return callback(error, null);
+            }
+        })
+        .catch((err) => {
+            console.error("Error fetching product model:", err);
+            callback(err, null);
+        });
+};
+
+
+
+
+//========================updatenew point======================================
 
 CategoryProductService.createCategroy = async function createCategroy(dbName, data) {
     try {

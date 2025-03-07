@@ -34,6 +34,22 @@ module.exports.setRoutes = function (app) {
             }
         });
     });
+
+
+    //==========================rohitnew point======================================================
+    app.patch('/product/:id', authCompany, (req, res) => {
+        categroyProductService.updateProductByCategory(req.DbName, req.params.id, req.body, (err, data) => {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+    
+
+  //==========================rohitnew point======================================================
+
     app.post('/categroy', authCompany, async (req, res) => {
         try {
             const result = await categroyProductService.createCategroy(req.DbName, req.body);

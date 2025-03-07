@@ -6,8 +6,8 @@ const workFlow = require('../modals/ticket/workFlow');
 const serviceRequest = require('../modals/ticket/ticket')
 const customerService = require('../modals/master/customer')
 const errorFunction = require('../utills/error');
-// const watsConfig = require('../config/whatsup.config.json')
-// const { default: axios } = require('axios');
+const watsConfig = require('../config/whatsup.config.json')
+const { default: axios } = require('axios');
 const _ = require('lodash');
 let serviceRequestService = module.exports = { checkUserIsValidOrNot }
 
@@ -133,13 +133,18 @@ serviceRequestService.createComment = async function CreateComment(dbName, data,
         const users = await userModel.find({ name: { $in: notifyArr.map(x => x.User) } })
         const doArr = []
         users.forEach((x) => {
-            // const chat = _.cloneDeep(watsConfig.struc)
-            // chat.templateParams.push(`${x.name}, ${user1.name} left a comment on your Service Request ID ${data.TicketId} is : ${data.Message}`)
-            // chat.templateParams.push(`JBDS TEAM`)
-            // chat.destination = '91' + x.mobileNumber;
-            // doArr.push(axios.post(watsConfig.api, chat))
+            const chat = _.cloneDeep(watsConfig.struc)
+            chat.templateParams.push(`${x.name}, ${user1.name} left a comment on your Service Request ID ${data.TicketId} is : ${data.Message}`)
+            chat.templateParams.push(`JBDS TEAM`)
+            chat.destination = '91' + x.mobileNumber;
+            doArr.push(axios.post(watsConfig.api, chat))
         })
-        await Promise.all(doArr)
+        try {
+            await Promise.all(doArr);
+        } catch (err) {
+            console.error("Error sending notifications:", err.response ? err.response.data : err.message);
+        }
+      
         const result = await model.createComment(data);
         return result;
 
@@ -735,40 +740,45 @@ async function createServiceRequest(user, dbName, data, userId) {
             const model = await userModel.getModel(dbName)
             const otp = generateFourDigitRandomNumber()
             const TeamLead = await model.findOne({ name: data.Data.TeamLead })
-            // const chat = _.cloneDeep(watsConfig.Customer_Template)
-            // chat.templateParams.push(`${firstState.FieldData.ClientName}`)
-            // chat.templateParams.push(`${data.SR_ID}`)
-            // chat.templateParams.push(`${TeamLead.name}`)
-            // chat.templateParams.push(`${TeamLead.name}`)
-            // chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
-            // chat.destination = '91' + firstState.FieldData.ClientMobNumber
-            // await axios.post(watsConfig.api, chat)
+            //==========================================   ye code phle comment tha ========================
+            const chat = _.cloneDeep(watsConfig.Customer_Template)
+            console.log(chat,"chat")
+            chat.templateParams.push(`${firstState.FieldData.ClientName}`)
+            chat.templateParams.push(`${data.SR_ID}`)
+            chat.templateParams.push(`${TeamLead.name}`)
+            chat.templateParams.push(`${TeamLead.name}`)
+            chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
+            chat.destination = '91' + firstState.FieldData.ClientMobNumber
+            await axios.post(watsConfig.api, chat)
+             //==========================================   ye code phle comment tha ========================
 
-            // const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-            // chat2.templateParams.push(`${TeamLead.name}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-            // chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-            // chat2.destination = '91' + TeamLead.mobileNumber
-            // await axios.post(watsConfig.api, chat2)
-            // data.CustomerOTP = otp;
+            const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+            chat2.templateParams.push(`${TeamLead.name}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+            chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+            chat2.destination = '91' + TeamLead.mobileNumber
+            await axios.post(watsConfig.api, chat2)
+            data.CustomerOTP = otp;
         }
         if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'manager') {
             const firstState = data.SR_Data_Logs
             const model = await userModel.getModel(dbName)
             const emp = await model.findOne({ name: { $in: data.Data.AssignPerson.map(x => x.value) } })
-            // const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-            // chat2.templateParams.push(`${emp.name}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-            // chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-            // chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-            // chat2.destination = '91' + emp.mobileNumber
-            // await axios.post(watsConfig.api, chat2)
-            //  serviceRequestDoc.CustomerOTP = otp;
+            console.log("emp", emp)
+            const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+            chat2.templateParams.push(`${emp.name}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+            chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+            chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+            chat2.destination = '91' + emp.mobileNumber
+            console.log("Sending message with: ", chat2)
+            await axios.post(watsConfig.api, chat2)
+            data.CustomerOTP = otp;
         }
         data.Status = "Active"
         data.Priority = (priority && priority.length > 0 ? priority[0].value : "")
@@ -880,17 +890,17 @@ async function executeServiceRequestState(user, dbName, data) {
 }
 
 async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
-    // if (data.Control.Control_Name == "Check In" || data.Control.Control_Name == "Check Out") {
-    //     let states = serviceRequestDoc.SR_Data_Logs.filter(one => one.FieldData.AssignRole == "manager")
-    //     states = states[states.length - 1]
-    //     const model = await userModel.getModel(dbName)
-    //     const manager = await model.findOne({ name: states.AssignPerson[0].value })
-    //     const chat = _.cloneDeep(watsConfig.struc)
-    //     chat.templateParams.push(`${manager.name}, Employee ${user.name} ${data.Control.Control_Name} on ticket ${serviceRequestDoc.SR_ID}`)
-    //     chat.templateParams.push(`JBDS TEAM`)
-    //     chat.destination = '91' + manager.mobileNumber;
-    //     await axios.post(watsConfig.api, chat)
-    // }
+    if (data.Control.Control_Name == "Check In" || data.Control.Control_Name == "Check Out") {
+        let states = serviceRequestDoc.SR_Data_Logs.filter(one => one.FieldData.AssignRole == "manager")
+        states = states[states.length - 1]
+        const model = await userModel.getModel(dbName)
+        const manager = await model.findOne({ name: states.AssignPerson[0].value })
+        const chat = _.cloneDeep(watsConfig.struc)
+        chat.templateParams.push(`${manager.name}, Employee ${user.name} ${data.Control.Control_Name} on ticket ${serviceRequestDoc.SR_ID}`)
+        chat.templateParams.push(`JBDS TEAM`)
+        chat.destination = '91' + manager.mobileNumber;
+        await axios.post(watsConfig.api, chat)
+    }
 
     if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'employee') {
         const firstState = serviceRequestDoc.SR_Data_Logs[0]
@@ -929,7 +939,7 @@ async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
         chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
         chat2.destination = '91' + emp.mobileNumber
         await axios.post(watsConfig.api, chat2)
-        //  serviceRequestDoc.CustomerOTP = otp;
+         serviceRequestDoc.CustomerOTP = otp;
     }
 }
 
