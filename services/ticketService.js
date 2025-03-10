@@ -144,7 +144,7 @@ serviceRequestService.createComment = async function CreateComment(dbName, data,
         } catch (err) {
             console.error("Error sending notifications:", err.response ? err.response.data : err.message);
         }
-      
+
         const result = await model.createComment(data);
         return result;
 
@@ -499,7 +499,7 @@ serviceRequestService.getNextServiceRequestState = async function getNextService
 
             // dataCurrentStateName.Fields=dataCurrentStateName.Fields.filter((x)=>!x.enable|| e.enable)
             let statusWarn = ""
-            const  controls=workFlowCurrentStateName.Control;
+            const controls = workFlowCurrentStateName.Control;
             if (workFlowCurrentStateName.StateName == "Complete" || workFlowCurrentStateName.StateName == "Pending" || workFlowCurrentStateName.StateName == "InProgress") {
                 statusWarn = "Inspection Is Pending"
                 result.SR_Data_Logs.forEach((x) => {
@@ -691,7 +691,7 @@ async function createCustomerIfNotExist(data, dbName) {
             mobileNumber: data.Data.ClientMobNumber,
             email: data.Data.ClientEmailId,
             designation: data.Data.Designation,
-            address:data.Data.ClientAddress,
+            address: data.Data.ClientAddress,
             department: data.Data.Department,
             plant: data.Data.Plant,
         };
@@ -742,7 +742,7 @@ async function createServiceRequest(user, dbName, data, userId) {
             const TeamLead = await model.findOne({ name: data.Data.TeamLead })
             //==========================================   ye code phle comment tha ========================
             const chat = _.cloneDeep(watsConfig.Customer_Template)
-            console.log(chat,"chat")
+            console.log(chat, "chat")
             chat.templateParams.push(`${firstState.FieldData.ClientName}`)
             chat.templateParams.push(`${data.SR_ID}`)
             chat.templateParams.push(`${TeamLead.name}`)
@@ -750,7 +750,7 @@ async function createServiceRequest(user, dbName, data, userId) {
             chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
             chat.destination = '91' + firstState.FieldData.ClientMobNumber
             await axios.post(watsConfig.api, chat)
-             //==========================================   ye code phle comment tha ========================
+            //==========================================   ye code phle comment tha ========================
 
             const chat2 = _.cloneDeep(watsConfig.Emp_Template)
             chat2.templateParams.push(`${TeamLead.name}`)
@@ -1063,6 +1063,9 @@ async function executeServiceRequestState(user, dbName, data) {
 //     }
 // }
 
+
+
+
 //=========================rohit new point==============================================
 async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
     try {
@@ -1110,7 +1113,7 @@ async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
                     chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`);
                     chat2.destination = '91' + TeamLead.mobileNumber;
                     await axios.post(watsConfig.api, chat2);
-                    
+
                     serviceRequestDoc.CustomerOTP = otp;
                 }
             }
@@ -1212,27 +1215,72 @@ function checkValidateWarinigTicket(srData, stateLogs, data) {
                 if (!srData.DueDate) {
                     throw new Error("Please add due date before complete inspection or ask manager to add due date.")
                 }
-                if (stateLogs.FieldData && stateLogs.FieldData.Files.length == 0) {
-                    throw new Error("Please upload MOU doc for complete the inspection.")
-                }
-                   //=============================newpoint uncomment=====================================
+                // if (stateLogs.FieldData && stateLogs.FieldData.Files.length == 0) {
+                //     throw new Error("Please upload MOM doc for complete the inspection.")
+                // }
+                // //=============================newpoint uncomment=====================================
             }
-            if (srData.DueDate && control.Control_Name == "Check In") {
-                const checkIn = new Date(stateLogs.EventLogs[0].CheckInTime)
+            if (srData.DueDate && control.Control_Name === "Check In") {
+                const checkIn = new Date(stateLogs.EventLogs?.[0]?.CheckInTime)
                 if (startDate <= checkIn && dueDate >= checkIn) {
 
                 } else {
                     throw new Error("Check In Time Between Start Date and Due Date can not start time before or after. If you want this time to check in please ask to manager extend your dates.")
                 }
             }
+
+
+            // if (srData.DueDate && control.Control_Name === "Check In") {
+            //     const checkInTime = stateLogs?.EventLogs?.[0]?.CheckInTime;
+                
+            //     console.log("Start Date:", startDate.toISOString());
+            //     console.log("Due Date:", dueDate.toISOString());
+            //     console.log("Check In Time (Raw):", checkInTime);
+                
+            //     if (!checkInTime) {
+            //         throw new Error("Check In Time is missing or invalid.");
+            //     }
+                
+            //     const checkIn = new Date(checkInTime);
+            //     console.log("Check In Time (Parsed):", checkIn.toISOString());
+                
+            //     if (isNaN(checkIn.getTime())) {
+            //         throw new Error("Invalid Check In Time format.");
+            //     }
+                
+            //     if (!(checkIn >= startDate && checkIn <= dueDate)) {
+            //         throw new Error("Check In Time must be between Start Date and Due Date.");
+            //     }
+            // }
             if (srData.DueDate && control.Control_Name == "Check Out") {
                 const checkIn = new Date(stateLogs.EventLogs[0].CheckOutTime)
                 if (startDate <= checkIn && dueDate >= checkIn) {
-
                 } else {
                     throw new Error("Check Out Time Between Start Date and Due Date can not start time before or after. If you want this time to check out please ask to manager extend your dates.")
                 }
             }
+
+
+            // if (srData.DueDate && control.Control_Name === "Check Out") {
+            //     const checkOutTime = stateLogs?.EventLogs?.[0]?.CheckOutTime;
+                
+            //     console.log("Check Out Time (Raw):", checkOutTime);
+                
+            //     if (!checkOutTime) {
+            //         throw new Error("Check Out Time is missing or invalid.");
+            //     }
+                
+            //     const checkOut = new Date(checkOutTime);
+            //     console.log("Check Out Time (Parsed):", checkOut.toISOString());
+                
+            //     if (isNaN(checkOut.getTime())) {
+            //         throw new Error("Invalid Check Out Time format.");
+            //     }
+                
+            //     if (!(checkOut >= startDate && checkOut <= dueDate)) {
+            //         throw new Error("Check Out Time must be between Start Date and Due Date.");
+            //     }
+            // }
             if (control.Control_Name == "Complete") {
                 const completeDate = new Date()
                 if (!srData.DueDate) {
@@ -1251,6 +1299,24 @@ function checkValidateWarinigTicket(srData, stateLogs, data) {
 
 
         }
+
+
+        // if (control.Control_Name === "Complete") {
+        //     const completeDate = new Date();
+            
+        //     if (!srData.DueDate) {
+        //         throw new Error("Please add a due date before completing the ticket or ask the manager to add a due date.");
+        //     }
+            
+        //     if (!(completeDate >= startDate && completeDate <= dueDate)) {
+        //         throw new Error("You can't complete the task because your time has ended. If you need more time, ask your manager to extend your dates.");
+        //     }
+            
+        //     if (data.Data.CustomerOTP !== srData.CustomerOTP) {
+        //         throw new Error("Please enter a valid customer OTP to complete the ticket.");
+        //     }
+        // }
+    // }
         return "Done"
     }
     catch (err) {
@@ -1263,7 +1329,7 @@ serviceRequestService.GetAllTicket = async function GetAllTicket(user, dbName) {
 
         const model = await serviceRequest.getModel(dbName);
         let result;
-        if (user.role == "super_admin") {
+        if (user.role == "super_admin" || user.role == "manager") {
             result = await model.find({ DocumentType: "ServiceRequest" }).sort({ createdAt: -1 }).lean()
         } else {
             result = await model.find({ DocumentType: "ServiceRequest", "SR_Data_Logs.FieldData.AssignPerson.value": user.name }).sort({ createdAt: -1 }).lean()
