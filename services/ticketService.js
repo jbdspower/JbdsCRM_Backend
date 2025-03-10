@@ -761,7 +761,7 @@ async function createServiceRequest(user, dbName, data, userId) {
             chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
             chat2.destination = '91' + TeamLead.mobileNumber
             await axios.post(watsConfig.api, chat2)
-            data.CustomerOTP = otp;
+            // data.CustomerOTP = otp;
         }
         if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'manager') {
             const firstState = data.SR_Data_Logs
@@ -778,7 +778,7 @@ async function createServiceRequest(user, dbName, data, userId) {
             chat2.destination = '91' + emp.mobileNumber
             console.log("Sending message with: ", chat2)
             await axios.post(watsConfig.api, chat2)
-            data.CustomerOTP = otp;
+            // data.CustomerOTP = otp;
         }
         data.Status = "Active"
         data.Priority = (priority && priority.length > 0 ? priority[0].value : "")
@@ -799,19 +799,133 @@ function generateFourDigitRandomNumber() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// async function executeServiceRequestState(user, dbName, data) {
+//     try {
+//         data = { ...data };
+//         const model = await serviceRequest.getModel(dbName);
+//         const serviceRequestDoc = await model.findOne({ DocumentType: "ServiceRequest", SR_ID: data.SR_ID });
+//         if (data.Control.Action == "Update_State") {
+//             const srData = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1]
+//             serviceRequestDoc.DueDate = data.Data.DueDate
+//             serviceRequestDoc.StateType = data.Control.NextStateName
+//             serviceRequestDoc.StateName = data.Control.NextStateName
+//             srData.NextStateName = data.Control.NextStateName
+//             srData.UpdateData.push({ UpdatedAt: new Date(), User: user.name, ...data.Data, Control_Name: data.Control.Control_Name, Action: data.Control.Action })
+//             serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = srData
+//             await model.updateOne({ SR_ID: data.SR_ID }, serviceRequestDoc);
+//             return data.SR_ID;
+//         } else {
+//             let SR_Data_Logs = {
+//                 FieldData: data.Data,
+//                 CreatedBy: user.name,
+//                 CreatedAt: new Date(),
+//                 StateType: data.StateType,
+//                 StateName: data.StateName,
+//                 UpdateData: [],
+//                 EventLogs: [],
+//                 Control_Name: data.Control.Control_Name,
+//                 Action: data.Control.Action,
+//                 NextStateName: data.Control.NextStateName,
+//             };
+//             const lastState = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1]
+//             if (lastState && (lastState.Control_Name == data.Control.Control_Name) && ["Check Out", "Check In"].includes(data.Control.Control_Name)) {
+//                 if (data.Data && data.Data.TimeEstimate) {
+
+//                     data.Data.TimeEstimate.forEach((us) => {
+//                         const obj = { User: us.User, WorkDesc: us.WorkDesc }
+//                         data.Control.Event_To_Log.forEach((one) => {
+//                             if (one.Event == "TimeLog") {
+//                                 obj[one.FieldName] = new Date()
+//                             }
+//                             if (one.Event == "Location") {
+//                                 obj[one.FieldName] = data.Data.Location
+//                             }
+//                         })
+//                         SR_Data_Logs.EventLogs.push(obj)
+//                         lastState.FieldData.TimeEstimate.push(us)
+//                     })
+//                     SR_Data_Logs.EventLogs.forEach((x) => {
+//                         if (!lastState.EventLogs.some(user => user.User == x.User)) {
+//                             lastState.EventLogs.push(x)
+//                             lastState
+//                         }
+//                     })
+//                     serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = lastState
+//                 }
+//             } else {
+//                 if (data.Data && data.Data.TimeEstimate) {
+//                     data.Data.TimeEstimate.forEach((us) => {
+//                         const obj = { User: us.User, WorkDesc: us.WorkDesc }
+//                         data.Control.Event_To_Log.forEach((one) => {
+//                             if (one.Event == "TimeLog") {
+//                                 obj[one.FieldName] = new Date()
+//                             }
+//                             if (one.Event == "Location") {
+//                                 obj[one.FieldName] = data.Data.Location
+//                             }
+//                         })
+//                         SR_Data_Logs.EventLogs.push(obj)
+
+//                     })
+
+//                 }
+//                 checkValidateWarinigTicket(serviceRequestDoc, SR_Data_Logs, data)
+//                 const otp = generateFourDigitRandomNumber()
+//                 await checkAndSendNotification(data, otp, serviceRequestDoc, dbName)
+//                 serviceRequestDoc.CustomerOTP = otp;
+
+//                 serviceRequestDoc.SR_Data_Logs.push(SR_Data_Logs);
+//                 serviceRequestDoc.StateName = data.Control.NextStateName
+//                 serviceRequestDoc.StateType = data.Control.NextStateName
+//             }
+
+//             await model.updateOne({ SR_ID: data.SR_ID }, serviceRequestDoc);
+//             return data.SR_ID;
+//         }
+
+
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+
+//=========================================rohit new point===================================================
+
 async function executeServiceRequestState(user, dbName, data) {
     try {
+        console.log("Received data:", JSON.stringify(data, null, 2));
+
         data = { ...data };
         const model = await serviceRequest.getModel(dbName);
         const serviceRequestDoc = await model.findOne({ DocumentType: "ServiceRequest", SR_ID: data.SR_ID });
+
+        if (!serviceRequestDoc) {
+            throw new Error(`Service request with SR_ID ${data.SR_ID} not found.`);
+        }
+
+        if (!serviceRequestDoc.SR_Data_Logs || serviceRequestDoc.SR_Data_Logs.length === 0) {
+            throw new Error("SR_Data_Logs is empty or undefined.");
+        }
+
+        console.log("Service Request Document found:", JSON.stringify(serviceRequestDoc, null, 2));
+
         if (data.Control.Action == "Update_State") {
-            const srData = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1]
-            serviceRequestDoc.DueDate = data.Data.DueDate
-            serviceRequestDoc.StateType = data.Control.NextStateName
-            serviceRequestDoc.StateName = data.Control.NextStateName
-            srData.NextStateName = data.Control.NextStateName
-            srData.UpdateData.push({ UpdatedAt: new Date(), User: user.name, ...data.Data, Control_Name: data.Control.Control_Name, Action: data.Control.Action })
-            serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = srData
+            const srData = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1];
+            serviceRequestDoc.DueDate = data.Data.DueDate;
+            serviceRequestDoc.StateType = data.Control.NextStateName;
+            serviceRequestDoc.StateName = data.Control.NextStateName;
+            srData.NextStateName = data.Control.NextStateName;
+
+            srData.UpdateData = srData.UpdateData || [];
+            srData.UpdateData.push({
+                UpdatedAt: new Date(),
+                User: user.name,
+                ...data.Data,
+                Control_Name: data.Control.Control_Name,
+                Action: data.Control.Action,
+            });
+
+            serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = srData;
             await model.updateOne({ SR_ID: data.SR_ID }, serviceRequestDoc);
             return data.SR_ID;
         } else {
@@ -827,122 +941,211 @@ async function executeServiceRequestState(user, dbName, data) {
                 Action: data.Control.Action,
                 NextStateName: data.Control.NextStateName,
             };
-            const lastState = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1]
-            if (lastState && (lastState.Control_Name == data.Control.Control_Name) && ["Check Out", "Check In"].includes(data.Control.Control_Name)) {
-                if (data.Data && data.Data.TimeEstimate) {
 
+            const lastState = serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1];
+
+            if (lastState && lastState.Control_Name == data.Control.Control_Name && ["Check Out", "Check In"].includes(data.Control.Control_Name)) {
+                if (data.Data && data.Data.TimeEstimate && Array.isArray(data.Data.TimeEstimate)) {
                     data.Data.TimeEstimate.forEach((us) => {
-                        const obj = { User: us.User, WorkDesc: us.WorkDesc }
-                        data.Control.Event_To_Log.forEach((one) => {
-                            if (one.Event == "TimeLog") {
-                                obj[one.FieldName] = new Date()
-                            }
-                            if (one.Event == "Location") {
-                                obj[one.FieldName] = data.Data.Location
-                            }
-                        })
-                        SR_Data_Logs.EventLogs.push(obj)
-                        lastState.FieldData.TimeEstimate.push(us)
-                    })
+                        const obj = { User: us.User, WorkDesc: us.WorkDesc };
+                        if (data.Control.Event_To_Log && Array.isArray(data.Control.Event_To_Log)) {
+                            data.Control.Event_To_Log.forEach((one) => {
+                                if (one.Event == "TimeLog") {
+                                    obj[one.FieldName] = new Date();
+                                }
+                                if (one.Event == "Location") {
+                                    obj[one.FieldName] = data.Data.Location;
+                                }
+                            });
+                        }
+                        SR_Data_Logs.EventLogs.push(obj);
+                        lastState.FieldData.TimeEstimate.push(us);
+                    });
+
                     SR_Data_Logs.EventLogs.forEach((x) => {
                         if (!lastState.EventLogs.some(user => user.User == x.User)) {
-                            lastState.EventLogs.push(x)
-                            lastState
+                            lastState.EventLogs.push(x);
                         }
-                    })
-                    serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = lastState
+                    });
+                    serviceRequestDoc.SR_Data_Logs[serviceRequestDoc.SR_Data_Logs.length - 1] = lastState;
                 }
             } else {
-                if (data.Data && data.Data.TimeEstimate) {
+                if (data.Data && data.Data.TimeEstimate && Array.isArray(data.Data.TimeEstimate)) {
                     data.Data.TimeEstimate.forEach((us) => {
-                        const obj = { User: us.User, WorkDesc: us.WorkDesc }
-                        data.Control.Event_To_Log.forEach((one) => {
-                            if (one.Event == "TimeLog") {
-                                obj[one.FieldName] = new Date()
-                            }
-                            if (one.Event == "Location") {
-                                obj[one.FieldName] = data.Data.Location
-                            }
-                        })
-                        SR_Data_Logs.EventLogs.push(obj)
-
-                    })
-
+                        const obj = { User: us.User, WorkDesc: us.WorkDesc };
+                        if (data.Control.Event_To_Log && Array.isArray(data.Control.Event_To_Log)) {
+                            data.Control.Event_To_Log.forEach((one) => {
+                                if (one.Event == "TimeLog") {
+                                    obj[one.FieldName] = new Date();
+                                }
+                                if (one.Event == "Location") {
+                                    obj[one.FieldName] = data.Data.Location;
+                                }
+                            });
+                        }
+                        SR_Data_Logs.EventLogs.push(obj);
+                    });
                 }
-                checkValidateWarinigTicket(serviceRequestDoc, SR_Data_Logs, data)
-                const otp = generateFourDigitRandomNumber()
-                await checkAndSendNotification(data, otp, serviceRequestDoc, dbName)
-                serviceRequestDoc.CustomerOTP = otp;
 
+                checkValidateWarinigTicket(serviceRequestDoc, SR_Data_Logs, data);
+                const otp = generateFourDigitRandomNumber();
+                await checkAndSendNotification(data, otp, serviceRequestDoc, dbName);
+                serviceRequestDoc.CustomerOTP = otp;
                 serviceRequestDoc.SR_Data_Logs.push(SR_Data_Logs);
-                serviceRequestDoc.StateName = data.Control.NextStateName
-                serviceRequestDoc.StateType = data.Control.NextStateName
+                serviceRequestDoc.StateName = data.Control.NextStateName;
+                serviceRequestDoc.StateType = data.Control.NextStateName;
             }
 
             await model.updateOne({ SR_ID: data.SR_ID }, serviceRequestDoc);
             return data.SR_ID;
         }
-
-
     } catch (error) {
+        console.error("Error in executeServiceRequestState:", error.message);
+        console.error("Error stack:", error.stack);
         throw error;
     }
 }
 
+//=========================================rohit new point===================================================
+
+
+// async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
+//     if (data.Control.Control_Name == "Check In" || data.Control.Control_Name == "Check Out") {
+//         let states = serviceRequestDoc.SR_Data_Logs.filter(one => one.FieldData.AssignRole == "manager")
+//         states = states[states.length - 1]
+//         const model = await userModel.getModel(dbName)
+//         const manager = await model.findOne({ name: states.AssignPerson[0].value })
+//         const chat = _.cloneDeep(watsConfig.struc)
+//         chat.templateParams.push(`${manager.name}, Employee ${user.name} ${data.Control.Control_Name} on ticket ${serviceRequestDoc.SR_ID}`)
+//         chat.templateParams.push(`JBDS TEAM`)
+//         chat.destination = '91' + manager.mobileNumber;
+//         await axios.post(watsConfig.api, chat)
+//     }
+
+//     if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'employee') {
+//         const firstState = serviceRequestDoc.SR_Data_Logs[0]
+//         const model = await userModel.getModel(dbName)
+//         const TeamLead = await model.findOne({ name: data.Data.TeamLead })
+//         const chat = _.cloneDeep(watsConfig.Customer_Template)
+//         chat.templateParams.push(`${firstState.FieldData.ClientName}`)
+//         chat.templateParams.push(`${data.SR_ID}`)
+//         chat.templateParams.push(`${TeamLead.name}`)
+//         chat.templateParams.push(`${TeamLead.name}`)
+//         chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
+//         chat.destination = '91' + firstState.FieldData.ClientMobNumber
+//         await axios.post(watsConfig.api, chat)
+
+//         const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+//         chat2.templateParams.push(`${TeamLead.name}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+//         chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+//         chat2.destination = '91' + TeamLead.mobileNumber
+//         await axios.post(watsConfig.api, chat2)
+//         serviceRequestDoc.CustomerOTP = otp;
+//     }
+//     if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'manager') {
+//         const firstState = serviceRequestDoc.SR_Data_Logs[0]
+//         const model = await userModel.getModel(dbName)
+//         const emp = await model.findOne({ name: { $in: data.Data.AssignPerson.map(x => x.value) } })
+//         const chat2 = _.cloneDeep(watsConfig.Emp_Template)
+//         chat2.templateParams.push(`${emp.name}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
+//         chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
+//         chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
+//         chat2.destination = '91' + emp.mobileNumber
+//         await axios.post(watsConfig.api, chat2)
+//          serviceRequestDoc.CustomerOTP = otp;
+//     }
+// }
+
+//=========================rohit new point==============================================
 async function checkAndSendNotification(data, otp, serviceRequestDoc, dbName) {
-    if (data.Control.Control_Name == "Check In" || data.Control.Control_Name == "Check Out") {
-        let states = serviceRequestDoc.SR_Data_Logs.filter(one => one.FieldData.AssignRole == "manager")
-        states = states[states.length - 1]
-        const model = await userModel.getModel(dbName)
-        const manager = await model.findOne({ name: states.AssignPerson[0].value })
-        const chat = _.cloneDeep(watsConfig.struc)
-        chat.templateParams.push(`${manager.name}, Employee ${user.name} ${data.Control.Control_Name} on ticket ${serviceRequestDoc.SR_ID}`)
-        chat.templateParams.push(`JBDS TEAM`)
-        chat.destination = '91' + manager.mobileNumber;
-        await axios.post(watsConfig.api, chat)
-    }
+    try {
+        if (data.Control.Control_Name === "Check In" || data.Control.Control_Name === "Check Out") {
+            let states = serviceRequestDoc.SR_Data_Logs.filter(one => one?.FieldData?.AssignRole === "manager");
+            states = states.length > 0 ? states[states.length - 1] : null;
 
-    if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'employee') {
-        const firstState = serviceRequestDoc.SR_Data_Logs[0]
-        const model = await userModel.getModel(dbName)
-        const TeamLead = await model.findOne({ name: data.Data.TeamLead })
-        const chat = _.cloneDeep(watsConfig.Customer_Template)
-        chat.templateParams.push(`${firstState.FieldData.ClientName}`)
-        chat.templateParams.push(`${data.SR_ID}`)
-        chat.templateParams.push(`${TeamLead.name}`)
-        chat.templateParams.push(`${TeamLead.name}`)
-        chat.templateParams.push(`${TeamLead.mobileNumber} and share with this OTP is ${otp} to our employee after complete the work.`)
-        chat.destination = '91' + firstState.FieldData.ClientMobNumber
-        await axios.post(watsConfig.api, chat)
+            if (states && states.AssignPerson && states.AssignPerson.length > 0) {
+                const model = await userModel.getModel(dbName);
+                const manager = await model.findOne({ name: states.AssignPerson[0]?.value });
 
-        const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-        chat2.templateParams.push(`${TeamLead.name}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-        chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-        chat2.destination = '91' + TeamLead.mobileNumber
-        await axios.post(watsConfig.api, chat2)
-        serviceRequestDoc.CustomerOTP = otp;
-    }
-    if (data.StateName == "Assign" && data.Data.AssignPerson && data.Data.AssignRole == 'manager') {
-        const firstState = serviceRequestDoc.SR_Data_Logs[0]
-        const model = await userModel.getModel(dbName)
-        const emp = await model.findOne({ name: { $in: data.Data.AssignPerson.map(x => x.value) } })
-        const chat2 = _.cloneDeep(watsConfig.Emp_Template)
-        chat2.templateParams.push(`${emp.name}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientName}`)
-        chat2.templateParams.push(`${firstState.FieldData.CompanyName}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`)
-        chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`)
-        chat2.destination = '91' + emp.mobileNumber
-        await axios.post(watsConfig.api, chat2)
-         serviceRequestDoc.CustomerOTP = otp;
+                if (manager) {
+                    const chat = _.cloneDeep(watsConfig.struc);
+                    chat.templateParams.push(`${manager.name}, Employee ${data?.User?.name} ${data.Control.Control_Name} on ticket ${serviceRequestDoc.SR_ID}`);
+                    chat.templateParams.push(`JBDS TEAM`);
+                    chat.destination = '91' + manager.mobileNumber;
+                    await axios.post(watsConfig.api, chat);
+                }
+            }
+        }
+
+        if (data.StateName === "Assign" && data.Data?.AssignPerson && data.Data.AssignRole === 'employee') {
+            const firstState = serviceRequestDoc.SR_Data_Logs.length > 0 ? serviceRequestDoc.SR_Data_Logs[0] : null;
+
+            if (firstState?.FieldData?.ClientName && firstState?.FieldData?.ClientMobNumber) {
+                const model = await userModel.getModel(dbName);
+                const TeamLead = await model.findOne({ name: data.Data.TeamLead });
+
+                if (TeamLead) {
+                    const chat = _.cloneDeep(watsConfig.Customer_Template);
+                    chat.templateParams.push(`${firstState.FieldData.ClientName}`);
+                    chat.templateParams.push(`${data.SR_ID}`);
+                    chat.templateParams.push(`${TeamLead.name}`);
+                    chat.templateParams.push(`${TeamLead.name}`);
+                    chat.templateParams.push(`${TeamLead.mobileNumber} and share this OTP: ${otp} with our employee after completing the work.`);
+                    chat.destination = '91' + firstState.FieldData.ClientMobNumber;
+                    await axios.post(watsConfig.api, chat);
+
+                    const chat2 = _.cloneDeep(watsConfig.Emp_Template);
+                    chat2.templateParams.push(`${TeamLead.name}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientName}`);
+                    chat2.templateParams.push(`${firstState.FieldData.CompanyName}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`);
+                    chat2.destination = '91' + TeamLead.mobileNumber;
+                    await axios.post(watsConfig.api, chat2);
+                    
+                    serviceRequestDoc.CustomerOTP = otp;
+                }
+            }
+        }
+
+        if (data.StateName === "Assign" && data.Data?.AssignPerson && data.Data.AssignRole === 'manager') {
+            const firstState = serviceRequestDoc.SR_Data_Logs.length > 0 ? serviceRequestDoc.SR_Data_Logs[0] : null;
+
+            if (firstState?.FieldData?.ClientName) {
+                const model = await userModel.getModel(dbName);
+                const emp = await model.findOne({ name: { $in: data.Data.AssignPerson?.map(x => x.value) ?? [] } });
+
+                if (emp) {
+                    const chat2 = _.cloneDeep(watsConfig.Emp_Template);
+                    chat2.templateParams.push(`${emp.name}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientName}`);
+                    chat2.templateParams.push(`${firstState.FieldData.CompanyName}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientMobNumber}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientEmailId}`);
+                    chat2.templateParams.push(`${firstState.FieldData.ClientAddress}`);
+                    chat2.destination = '91' + emp.mobileNumber;
+                    await axios.post(watsConfig.api, chat2);
+
+                    serviceRequestDoc.CustomerOTP = otp;
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error in checkAndSendNotification:", error.message);
     }
 }
 
+
+
+//=========================================rohit new point==============================================
 serviceRequestService.changeServiceRequestState = async function changeServiceRequestState(user, dbName, data) {
     try {
 
@@ -1005,12 +1208,14 @@ function checkValidateWarinigTicket(srData, stateLogs, data) {
                 if (!srData.SR_Data_Logs.some(x => x.Control_Name == "Start Inspection")) {
                     throw new Error("Please start the inspection first before complete the inspection.")
                 }
-                // if (!srData.DueDate) {
-                //     throw new Error("Please add due date before complete inspection or ask manager to add due date.")
-                // }
-                // if (stateLogs.FieldData && stateLogs.FieldData.Files.length == 0) {
-                //     throw new Error("Please upload MOU doc for complete the inspection.")
-                // }
+                //=============================newpoint=====================================
+                if (!srData.DueDate) {
+                    throw new Error("Please add due date before complete inspection or ask manager to add due date.")
+                }
+                if (stateLogs.FieldData && stateLogs.FieldData.Files.length == 0) {
+                    throw new Error("Please upload MOU doc for complete the inspection.")
+                }
+                   //=============================newpoint uncomment=====================================
             }
             if (srData.DueDate && control.Control_Name == "Check In") {
                 const checkIn = new Date(stateLogs.EventLogs[0].CheckInTime)
