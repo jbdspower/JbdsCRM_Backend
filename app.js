@@ -1,21 +1,27 @@
 'use strict';
 
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const dbConfig = require('./config/database.config')
 const cors = require('cors');
 const webPush = require('web-push');
 const logger = require('morgan');
-const key = require('./config/key.json');
 const mongodb = require('./utills/mongodb');
 const routes = require('./routes/routes');
 const path = require('path');
 const CheckDbConnection = require('./middleware/checkDatabaseConnection');
 
-webPush.setVapidDetails('mailto:sandy199444@gmail.com', key.public_key, key.private_key);
+webPush.setVapidDetails(
+    'mailto:sandy199444@gmail.com',
+    process.env.PUBLIC_KEY,
+    process.env.PRIVATE_KEY
+);
 
 //const multer = require('multer');
 
+console.log("PUBLIC_KEY:", process.env.PUBLIC_KEY);
+console.log("PRIVATE_KEY:", process.env.PRIVATE_KEY);
 
 const app = express();
 app.use(cors());

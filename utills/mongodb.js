@@ -2,10 +2,11 @@
 let mongoose = require('mongoose');
 let MongoClient = require('mongodb').MongoClient;
 var fs = require('fs');
+require('dotenv').config();
 const dbConfig = require('../config/database.config')
 var debug = require('debug')('app:middleware:registerModels');
 var path = __dirname + '/../modals';
-const connectionStringConfig = require('../config/db_connection_string.json');
+// const process.env = require('../config/db_connection_string.json');
 //let connections = {}
 var models = [];
 var connections = [];
@@ -20,7 +21,7 @@ let defaults = {
 
 module.exports.MDbConnect = function (dbOptions, callback) {
     dbOptionsGlobal = { ...dbOptions }
-    let connectionString = connectionStringConfig.connectionStringForTest + dbOptions.dbName + connectionStringConfig.additionalConnectionString;
+    let connectionString = process.env.CONNECTIONSTRINGFORTEST + dbOptions.dbName + process.env.additionalConnectionString;
     return mongoose.createConnection(connectionString, dbConfig.Options, function (err, conn) {
         if (err) {
             console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
@@ -79,7 +80,7 @@ module.exports.createFactoryConnection = function createFactoryConnection(dbName
 
 module.exports.getCollection = function (dbName, collName) {
     return new Promise((resolve, reject) => {
-        let connectionStringForDeployedCluster = connectionStringConfig.connectionStringForTest + dbName + connectionStringConfig.additionalConnectionString;
+        let connectionStringForDeployedCluster = process.env.CONNECTIONSTRINGFORTEST + dbName + process.env.additionalConnectionString;
         MongoClient.connect(connectionStringForDeployedCluster, { useUnifiedTopology: true }, async (err, client) => {
             let Database = await client.db(dbName);
             if (err != null) {
@@ -97,7 +98,7 @@ module.exports.getDataBaseConnection = function getDataBaseConnection(dbName) {
         if (connections[dbName]) {
             resolve(connections[dbName])
         } else {
-            let connectionString = connectionStringConfig.connectionStringForTest + dbName + connectionStringConfig.additionalConnectionString;
+            let connectionString = process.env.CONNECTIONSTRINGFORTEST + dbName + process.env.additionalConnectionString;
             let conn;
             mongoose.createConnection(connectionString, dbConfig.Options)
                 .then((result) => {
